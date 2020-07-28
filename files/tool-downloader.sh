@@ -80,6 +80,10 @@ else
 	curl ${CURL_OPTS} ${DOWNLOAD_URL} -o /tmp/${NAME}
 fi
 
+if [ -n "${PRE_INSTALL}" ]; then
+	eval "${PRE_INSTALL}"
+fi
+
 if [ -f /tmp/${NAME} ]; then
 	mv /tmp/${NAME} /usr/local/bin
 	chmod +x /usr/local/bin/${NAME}
@@ -88,4 +92,8 @@ if [ -f /tmp/${NAME} ]; then
 else
 	echo "Don't know how to install. Please install manually."
 	ls -la /tmp
+fi
+
+if [ -n "${POST_INSTALL}" ]; then
+	eval "${POST_INSTALL}"
 fi
