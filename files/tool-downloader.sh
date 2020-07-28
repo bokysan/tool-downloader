@@ -72,7 +72,7 @@ if echo "${DOWNLOAD_URL}" | egrep -iq '.*\.(tar\.gz|tgz)$'; then
 	curl ${CURL_OPTS} ${DOWNLOAD_URL} | tar xz
 elif echo "${DOWNLOAD_URL}" | egrep -iq '.*\.(zip)$'; then
 	echo "Extracting ${PROJECT} from ${DOWNLOAD_URL}..."
-	curl ${CURL_OPTS} ${DOWNLOAD_URL} | -o /tmp/${NAME}.zip
+	curl ${CURL_OPTS} ${DOWNLOAD_URL} -o /tmp/${NAME}.zip
 	unzip /tmp/${NAME}.zip
 	rm /tmp/${NAME}.zip
 else
@@ -96,4 +96,8 @@ fi
 
 if [ -n "${POST_INSTALL}" ]; then
 	eval "${POST_INSTALL}"
+fi
+
+if [ -n "${VERIFY_COMMAND}" ]; then
+	${VERIFY_COMMAND}
 fi
