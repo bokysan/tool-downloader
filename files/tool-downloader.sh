@@ -43,6 +43,21 @@ elif [ "${GOARCH}" == "i386" ]; then
 	GOARCH="386"
 fi
 
+if [ "${GOARCH}" = "*64" ]; then
+	GOBITS=64
+elif [ "${GOARCH}" = "*32" ]; then
+	GOBITS=32
+elif [ -n "${GOARM}" ] && [ "${GOARM}" -gt 7 ]; then
+	GOBITS=64
+elif [ -n "${GOARM}" ] && [ "${GOARM}" -lt 8 ]; then
+	GOBITS=32
+elif [ "${GOARCH}" == "arm5" ] || [ "${GOARCH}" == "arm6" ] || [ "${GOARCH}" == "arm7" ]; then
+	GOBITS=32
+elif [ "${GOARCH}" == arm* ]; then
+	GOBITS=64
+fi
+
+
 OSARCHIVE=".tar.gz"
 if [ "${GOOS}" == "windows" ]; then
 	GOEXT=".exe"
