@@ -32,6 +32,8 @@ FROM python:latest
 COPY --from=hetzner-kube /usr/bin/hetzner-kube /usr/bin
 ```
 
+See more usage examples in the `tests` folder.
+
 ## Configuration options
 
 Most of the time, you will need to provide the `$PROJECT` (GitHub project name) and `$DOWNLOAD_TEMPLATE` and the tool will download the latest version.
