@@ -81,10 +81,10 @@ else
 fi
 
 if [ -f /tmp/${NAME} ]; then
-	mv /tmp/${NAME} /usr/bin
-	chmod +x /usr/bin/${NAME}
-	chown root:root /usr/bin/${NAME}
-	echo "Installed into /usr/bin/${NAME}"
+	mv /tmp/${NAME} /usr/local/bin
+	chmod +x /usr/local/bin/${NAME}
+	chown root:root /usr/local/bin/${NAME}
+	echo "Installed into /usr/local/bin/${NAME}"
 else
 	echo "Don't know how to install. Please install manually."
 	ls -la /tmp

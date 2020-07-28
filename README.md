@@ -24,7 +24,7 @@ RUN  \
 
 # ≡≡≡≡≡≡≡≡≡≡≡≡ Create your image for install-less usage on your computer ≡≡≡≡≡≡≡≡≡≡≡≡
 FROM scratch
-COPY --from=hetzner-kube /usr/bin/hetzner-kube /usr/bin
+COPY --from=hetzner-kube /usr/local/bin/hetzner-kube /usr/local/bin
 
 # ≡≡≡≡≡≡≡≡≡≡≡≡ Embed into your image ≡≡≡≡≡≡≡≡≡≡≡≡
 FROM python:latest
