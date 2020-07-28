@@ -65,16 +65,18 @@ if [ "${GOOS}" == "windows" ]; then
 fi
 
 DOWNLOAD_URL="$(eval echo "${DOWNLOAD_TEMPLATE}")"
-echo "Downloading ${PROJECT} from ${DOWNLOAD_URL}..."
 
 cd /tmp
-if [ "${DOWNLOAD_URL}" == *.tar.gz ] || [ "${DOWNLOAD_URL}" == *.tgz ]; then
+if echo "${DOWNLOAD_URL}" | egrep -iq '.*\.(tar\.gz|tgz)$'; then
+	echo "Extracting ${PROJECT} from ${DOWNLOAD_URL}..."
 	curl ${CURL_OPTS} ${DOWNLOAD_URL} | tar xz
-elif [ "${DOWNLOAD_URL}" == *.zip ]; then
+elif echo "${DOWNLOAD_URL}" | egrep -iq '.*\.(zip)$'; then
+	echo "Extracting ${PROJECT} from ${DOWNLOAD_URL}..."
 	curl ${CURL_OPTS} ${DOWNLOAD_URL} | -o /tmp/${NAME}.zip
 	unzip /tmp/${NAME}.zip
 	rm /tmp/${NAME}.zip
 else
+	echo "Downloading ${PROJECT} from ${DOWNLOAD_URL}..."
 	curl ${CURL_OPTS} ${DOWNLOAD_URL} -o /tmp/${NAME}
 fi
 
