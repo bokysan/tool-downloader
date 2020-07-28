@@ -1,4 +1,6 @@
 # (GitHub) tool downloader
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbokysan%2Ftool-downloader.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbokysan%2Ftool-downloader?ref=badge_shield)
+
 
 ## What is this
 
@@ -39,3 +41,7 @@ See more usage examples in the `tests` folder.
 Most of the time, you will need to provide the `$PROJECT` (GitHub project name) and `$DOWNLOAD_TEMPLATE` and the tool will download the latest version.
 
 To fix the specific version, set the `$VERSION` field.
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbokysan%2Ftool-downloader.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbokysan%2Ftool-downloader?ref=badge_large)
