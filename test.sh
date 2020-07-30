@@ -50,7 +50,10 @@ if [ "$#" -gt 0 ]; then
 else
 	for i in tests/*; do
 		if [ -d "$i" ]; then
-			do_it "$i"
+			# Mutagen uses the new buildx syntax and is not compatible with docker build
+			if ! [[ "$i" == *mutagen* ]]; then
+				do_it "$i"
+			fi
 		fi
 	done
 fi

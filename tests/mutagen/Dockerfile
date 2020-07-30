@@ -13,6 +13,7 @@ RUN tool-downloader
 
 # ≡≡≡≡≡≡≡≡≡≡≡≡ Create the image ≡≡≡≡≡≡≡≡≡≡≡≡
 FROM --platform=$TARGETPLATFORM scratch
+ARG TARGETPLATFORM
 COPY --from=build /usr/local/bin/mutagen /mutagen
 WORKDIR /work
 ENTRYPOINT [ "/mutagen" ]
