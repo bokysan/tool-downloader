@@ -4,7 +4,11 @@ set -e
 declare SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 source $SCRIPTPATH/functions.sh
 
-docker build -t boky/tool-downloader .
+# Do a multistage build
+export DOCKER_BUILDKIT=1
+export DOCKER_CLI_EXPERIMENTAL=enabled
+
+docker_login
 
 do_it() {
 		if [ -d "$1" ]; then
@@ -31,15 +35,24 @@ do_it() {
 		fi
 		export VERSION
 
+		setup_default_platforms
+		if [ -f "$build_env" ]; then
+			eval "$(cat "$build_env" | egrep '^PLATFORMS=')"
+		fi
+		export PLATFORMS
+
 		IMAGE_VERSION="$(echo "$VERSION" | sed -E 's/^v//' | sed -E 's/\+.*$//')"
 		echo "**** $dockerfile / $IMAGE_VERSION$IS_LATEST ****"
-		# --env-file <( env | cut -f1 -d= )
-		cmd="docker build --build-arg VERSION=$VERSION $(build_args "$build_env" "--build-arg ") -t boky/$toolname:$IMAGE_VERSION -f $dockerfile $dockerdir"
+		cmd="docker buildx build --push --platform $PLATFORMS --build-arg VERSION=$VERSION $(build_args "$build_env" "--build-arg ") -t boky/$toolname:$IMAGE_VERSION"
+		if [ -n "$IS_LATEST" ]; then
+			cmd="$cmd -t boky/$toolname:latest"
+		fi
+		cmd="$cmd -f $dockerfile $dockerdir"
 		echo "$cmd"
 		eval "$cmd"
-		if [ -n "$IS_LATEST" ]; then
-			docker tag boky/$toolname:$IMAGE_VERSION boky/$toolname:latest
-		fi
+#		if [ -n "$IS_LATEST" ]; then
+#			docker tag boky/$toolname:$IMAGE_VERSION boky/$toolname:latest
+#		fi
 }
 
 if [ "$#" -gt 0 ]; then
@@ -54,3 +67,6 @@ else
 		fi
 	done
 fi
+
+
+

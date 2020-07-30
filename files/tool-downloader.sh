@@ -7,6 +7,7 @@ declare GOARM
 declare GOOS
 declare GOEXT
 declare GOBITS
+declare GOPROC
 declare GOOS_ARCHIVE_STYLE
 declare IS_ONLY_VERSION
 declare IS_ONLY_DOWNLOAD_URL
@@ -128,79 +129,112 @@ parse_arguments() {
 }
 
 setup_initial_variables() {
-	if [ -z "${PROJECT}" ]; then
+	if [[ -z "${PROJECT}" ]]; then
 		echo "Please define at least the GitHub project name, e.g. xetys/hetzner-kube"
 		exit 1
 	fi
 
-	if [ -z "${DOWNLOAD_TEMPLATE}" ]; then
+	if [[ -z "${DOWNLOAD_TEMPLATE}" ]]; then
 		DOWNLOAD_TEMPLATE='https://github.com/${PROJECT}/releases/download/${VERSION}/${NAME}-${VERSION}-${GOOS}-${GOARCH}${GOEXT}'
 	fi
 
-	if [ -z "${NAME}" ]; then
+	if [[ -z "${NAME}" ]]; then
 		NAME="$(echo "${PROJECT}" | cut -f2- -d/)"
 	fi
 
-	if [ -z "${CURL_OPTS}" ]; then
+	if [[ -z "${CURL_OPTS}" ]]; then
 		CURL_OPTS="--retry 5 --retry-connrefused --max-time 300 --connect-timeout 10 -fsSL"
 		if curl --help | fgrep -q -- --retry-all-errors; then
 			CURL_OPTS="${CURL_OPTS} --retry-all-errors"
 		fi
 	fi
 
-	if [ -z "${VERSION_TEMPLATE}" ]; then
+	if [[ -z "${VERSION_TEMPLATE}" ]]; then
 		VERSION_TEMPLATE='https://api.github.com/repos/${PROJECT}/releases/latest'
 	fi
 }
 
 setup_environment_variables () {
-	GOOS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+	if [[ -z "${GOOS}" ]]; then
+		GOOS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+	fi
 	GOEXT=""
-	if [ -n "${TARGETPLATFORM}" ]; then
+	if [[ -n "${TARGETPLATFORM}" ]]; then
 		GOARM=$(echo "${TARGETPLATFORM}" | cut -f3 -d/ | cut -c2-)
 		GOARCH=$(echo "${TARGETPLATFORM}" | cut -f2 -d/)
 	fi
 
-	if [ -z "${GOARCH}" ]; then
+	if [[ -z "${GOARCH}" ]]; then
 		GOARCH="$(uname -m)"
 	fi
 
-	if [ "${GOARCH}" == "x86_64" ]; then
+	if command -v getconf >/dev/null 2>&1; then
+		GOBITS="$(getconf LONG_BIT)"
+	fi
+
+	if [[ -z "${GOBITS}" ]]; then
+		if [[ "${GOARCH}" == *64 ]]; then
+			GOBITS=64
+		elif [[ "${GOARCH}" == *32 ]]; then
+			GOBITS=32
+		elif [[ -n "${GOARM}" ]] && [[ "${GOARM}" -gt 7 ]]; then
+			GOBITS=64
+		elif [[ -n "${GOARM}" ]] && [[ "${GOARM}" -lt 8 ]]; then
+			GOBITS=32
+		elif [[ "${GOARCH}" == "arm5" ]] || [[ "${GOARCH}" == "arm6" ]] || [[ "${GOARCH}" == "arm7" ]]; then
+			GOBITS=32
+		elif [[ "${GOARCH}" == "armv5" ]] || [[ "${GOARCH}" == "armv6" ]] || [[ "${GOARCH}" == "armv7" ]] || [[ "${GOARCH}" == "armv7l" ]]; then
+			GOBITS=32
+		elif [[ "${GOARCH}" == arm* ]]; then
+			GOBITS=64
+		fi
+	fi
+
+	if [[ "${GOARCH}" == "x86_64" ]]; then
+		# Docker will not emulate 32-bit architecture
+		# and will show x86_64 even when running a 32-bit OS.
+		# Hence we need additional checks here to make sure
+		# we're really running on 32-bit OS.
+
+		if [[ -n "${GOBITS}" ]]; then
+			if [[ "${GOBITS}" == "32" ]]; then
+				GOARCH="386"
+			fi
+		elif command -v dpkg >/dev/null 2>&1; then
+			GOARCH="$(dpkg --print-architecture)"
+		fi
+	fi
+
+	if [[ "${GOARCH}" == "x86_64" ]] || [[ "${GOARCH}" == "aarch64" ]]; then
 		GOARCH="amd64"
-	elif [ "${GOARCH}" == "i386" ]; then
+	elif [[ "${GOARCH}" == "i386" ]] || [[ "${GOARCH}" == "i486" ]] || [[ "${GOARCH}" == "i586" ]] || [[ "${GOARCH}" == "i686" ]]; then
 		GOARCH="386"
 	fi
 
-	if [ "${GOARCH}" = "*64" ]; then
-		GOBITS=64
-	elif [ "${GOARCH}" = "*32" ]; then
-		GOBITS=32
-	elif [ -n "${GOARM}" ] && [ "${GOARM}" -gt 7 ]; then
-		GOBITS=64
-	elif [ -n "${GOARM}" ] && [ "${GOARM}" -lt 8 ]; then
-		GOBITS=32
-	elif [ "${GOARCH}" == "arm5" ] || [ "${GOARCH}" == "arm6" ] || [ "${GOARCH}" == "arm7" ]; then
-		GOBITS=32
-	elif [ "${GOARCH}" == arm* ]; then
-		GOBITS=64
+	if [[ "${GOARCH}" == "arm64" ]]; then
+		GOPROC="${GOARCH}"
+	elif [[ "${GOARCH}" == arm* ]]; then
+		GOPROC="arm"
+	else
+		GOPROC="${GOARCH}"
 	fi
 
 	GOOS_ARCHIVE_STYLE=".tar.gz"
-	if [ "${GOOS}" == "windows" ]; then
+	if [[ "${GOOS}" == "windows" ]]; then
 		GOEXT=".exe"
 		GOOS_ARCHIVE_STYLE=".zip"
 	fi
 }
 
 get_version() {
-	if [ -z "${VERSION}" ]; then
+	if [[ -z "${VERSION}" ]]; then
 		VERSION_URL="$(eval echo "${VERSION_TEMPLATE}")"
 		VERSION=$(curl ${CURL_OPTS} ${VERSION_URL} | jq -r '.tag_name')
 	fi
 }
 
 get_download_url() {
-	if [ -z "${DOWNLOAD_URL}" ]; then
+	if [[ -z "${DOWNLOAD_URL}" ]]; then
 		DOWNLOAD_URL="$(eval echo "${DOWNLOAD_TEMPLATE}")"
 	fi
 }
@@ -222,11 +256,11 @@ download() {
 }
 
 install() {
-	if [ -n "${PRE_INSTALL}" ]; then
+	if [[ -n "${PRE_INSTALL}" ]]; then
 		eval "${PRE_INSTALL}"
 	fi
 
-	if [ -f /tmp/${NAME} ]; then
+	if [[ -f /tmp/${NAME} ]]; then
 		mv /tmp/${NAME} /usr/local/bin
 		chmod +x /usr/local/bin/${NAME}
 		chown root:root /usr/local/bin/${NAME}
@@ -236,13 +270,13 @@ install() {
 		ls -la /tmp
 	fi
 
-	if [ -n "${POST_INSTALL}" ]; then
+	if [[ -n "${POST_INSTALL}" ]]; then
 		eval "${POST_INSTALL}"
 	fi
 }
 
 verify() {
-	if [ -n "${VERIFY_COMMAND}" ]; then
+	if [[ -n "${VERIFY_COMMAND}" ]]; then
 		eval "${VERIFY_COMMAND}"
 	fi
 }
@@ -252,14 +286,14 @@ setup_initial_variables
 setup_environment_variables
 get_version
 
-if [ -n "${IS_ONLY_VERSION}" ]; then
+if [[ -n "${IS_ONLY_VERSION}" ]]; then
 	echo "$VERSION"
 	exit 0
 fi
 
 get_download_url
 
-if [ -n "${IS_ONLY_DOWNLOAD_URL}" ]; then
+if [[ -n "${IS_ONLY_DOWNLOAD_URL}" ]]; then
 	echo "$DOWNLOAD_URL"
 	exit 0
 fi
@@ -267,9 +301,3 @@ fi
 download
 install
 verify
-
-
-
-
-
-

@@ -1,5 +1,7 @@
 # ≡≡≡≡≡≡≡≡≡≡≡≡ Download executable ≡≡≡≡≡≡≡≡≡≡≡≡
-FROM boky/tool-downloader AS build
+FROM --platform=$BUILDPLATFORM boky/tool-downloader AS build
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
 ARG PROJECT
 ARG DOWNLOAD_TEMPLATE
 ARG VERIFY_COMMAND
@@ -10,7 +12,7 @@ ARG POST_INSTALL
 RUN tool-downloader
 
 # ≡≡≡≡≡≡≡≡≡≡≡≡ Create the image ≡≡≡≡≡≡≡≡≡≡≡≡
-FROM scratch
+FROM --platform=$TARGETPLATFORM scratch
 COPY --from=build /usr/local/bin/mutagen /mutagen
 WORKDIR /work
 ENTRYPOINT [ "/mutagen" ]
