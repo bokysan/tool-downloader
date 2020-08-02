@@ -61,7 +61,7 @@ if [ "$#" -gt 0 ]; then
 		shift
 	done
 else
-	for i in tests/*; do
+	for i in tools/*; do
 		if [ -d "$i" ]; then
 			do_it "$i"
 		fi

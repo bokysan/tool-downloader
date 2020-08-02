@@ -48,7 +48,7 @@ if [ "$#" -gt 0 ]; then
 		shift
 	done
 else
-	for i in tests/*; do
+	for i in tools/*; do
 		if [ -d "$i" ]; then
 			# Mutagen uses the new buildx syntax and is not compatible with docker build
 			if ! [[ "$i" == *mutagen* ]]; then

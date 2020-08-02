@@ -9,6 +9,7 @@ build_args() {
 	if [ -f "$build_env" ]; then
 		cat "$build_env" \
 			| sed -e '/^[ \t]*#/d' \
+			| sed -e '/^[ \t]*$/d' \
 			| sed -E "s/'/\\\\\'/g" \
 			| sed -E 's/^([A-Za-z_][A-Za-z0-9_-]+)=(.+)$/\1='"'"'\2'"'"'/' \
 			| sed -E "s/^/$prefix/g" \

@@ -32,7 +32,7 @@ FROM python:latest
 COPY --from=hetzner-kube /usr/bin/hetzner-kube /usr/bin
 ```
 
-See more usage examples in the `tests` folder.
+See more usage examples in the `tools` folder.
 
 ## Configuration options
 

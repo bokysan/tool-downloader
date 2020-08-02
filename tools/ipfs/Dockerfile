@@ -10,7 +10,7 @@ ARG POST_INSTALL
 RUN tool-downloader
 
 # ≡≡≡≡≡≡≡≡≡≡≡≡ Create the image ≡≡≡≡≡≡≡≡≡≡≡≡
-FROM scratch
+FROM ubuntu
 COPY --from=build /usr/local/bin/ipfs /ipfs
 WORKDIR /work
 ENTRYPOINT [ "/ipfs" ]
