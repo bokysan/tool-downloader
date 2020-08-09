@@ -50,9 +50,12 @@ if [ "$#" -gt 0 ]; then
 else
 	for i in tools/*; do
 		if [ -d "$i" ]; then
-			# Mutagen uses the new buildx syntax and is not compatible with docker build
-			if ! [[ "$i" == *mutagen* ]]; then
+			# Mutagen / IPFS uses the new buildx syntax and is not compatible with docker build
+			if ! fgrep -q "FROM --platform=" $i/Dockerfile*; then
+				echo "Building $i."
 				do_it "$i"
+			else
+				echo "Skipping $i because it's in new dockerx format."
 			fi
 		fi
 	done

@@ -1,5 +1,7 @@
 # ≡≡≡≡≡≡≡≡≡≡≡≡ Download executable ≡≡≡≡≡≡≡≡≡≡≡≡
-FROM boky/tool-downloader AS build
+FROM --platform=$BUILDPLATFORM boky/tool-downloader AS build
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
 ARG PROJECT
 ARG DOWNLOAD_TEMPLATE
 ARG VERIFY_COMMAND
@@ -10,7 +12,27 @@ ARG POST_INSTALL
 RUN tool-downloader
 
 # ≡≡≡≡≡≡≡≡≡≡≡≡ Create the image ≡≡≡≡≡≡≡≡≡≡≡≡
-FROM scratch
+FROM --platform=linux/amd64 ubuntu
+ARG TARGETPLATFORM
 COPY --from=build /usr/local/bin/ipfs /ipfs
 WORKDIR /work
 ENTRYPOINT [ "/ipfs" ]
+
+FROM --platform=linux/arm64 ubuntu
+ARG TARGETPLATFORM
+COPY --from=build /usr/local/bin/ipfs /ipfs
+WORKDIR /work
+ENTRYPOINT [ "/ipfs" ]
+
+FROM --platform=linux/arm/v7 ubuntu
+ARG TARGETPLATFORM
+COPY --from=build /usr/local/bin/ipfs /ipfs
+WORKDIR /work
+ENTRYPOINT [ "/ipfs" ]
+
+FROM --platform=linux/386 i386/ubuntu
+ARG TARGETPLATFORM
+COPY --from=build /usr/local/bin/ipfs /ipfs
+WORKDIR /work
+ENTRYPOINT [ "/ipfs" ]
+
