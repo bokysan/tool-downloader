@@ -12,6 +12,13 @@ declare GOOS_ARCHIVE_STYLE
 declare IS_ONLY_VERSION
 declare IS_ONLY_DOWNLOAD_URL
 
+semversort() {
+	cat | \
+		sed -E 's/^(.*)$/\1~~~~~~~~~~/' | \
+		sort --version-sort | \
+		sed -E 's/~~~~~~~~~~$//'
+}
+
 error() {
 	printf "ERROR " >&2
 	echo "$@" >&2
@@ -150,7 +157,7 @@ setup_initial_variables() {
 	fi
 
 	if [[ -z "${VERSION_TEMPLATE}" ]]; then
-		VERSION_TEMPLATE='https://api.github.com/repos/${PROJECT}/releases/latest'
+		VERSION_TEMPLATE='https://api.github.com/repos/${PROJECT}/releases'
 	fi
 }
 
@@ -226,10 +233,14 @@ setup_environment_variables () {
 	fi
 }
 
+
 get_version() {
 	if [[ -z "${VERSION}" ]]; then
+		# Get the latest version
 		VERSION_URL="$(eval echo "${VERSION_TEMPLATE}")"
-		VERSION=$(curl ${CURL_OPTS} ${VERSION_URL} | jq -r '.tag_name')
+		VERSIONS="$(curl ${CURL_OPTS} ${VERSION_URL} | jq -r -c '.[] | select( .prerelease == false and .draft == false ) | .tag_name')"
+		VERSIONS="$(echo "$VERSIONS" | semversort | tac)"
+		VERSION="$(echo "$VERSIONS" | head -n1)"
 	fi
 }
 

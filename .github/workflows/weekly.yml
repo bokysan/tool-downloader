@@ -5,7 +5,7 @@ on:
     - cron: '0 3 * * 0'
 
 jobs:
-  buildx:
+  calico:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,5 +21,193 @@ jobs:
         env:
           DOCKER_USERNAME: 'boky'
           DOCKER_PASSWORD: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
-        run: ./build-tools.sh
+        run: ./build-tools.sh tools/calico
+  hcloud:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get release version
+        run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: Build tools
+        env:
+          DOCKER_USERNAME: 'boky'
+          DOCKER_PASSWORD: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
+        run: ./build-tools.sh tools/hcloud
+  helm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get release version
+        run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: Build tools
+        env:
+          DOCKER_USERNAME: 'boky'
+          DOCKER_PASSWORD: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
+        run: ./build-tools.sh tools/helm
+  hetzner-kube:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get release version
+        run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: Build tools
+        env:
+          DOCKER_USERNAME: 'boky'
+          DOCKER_PASSWORD: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
+        run: ./build-tools.sh tools/hetzner-kube
+  ipfs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get release version
+        run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: Build tools
+        env:
+          DOCKER_USERNAME: 'boky'
+          DOCKER_PASSWORD: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
+        run: ./build-tools.sh tools/ipfs
+  istio:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get release version
+        run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: Build tools
+        env:
+          DOCKER_USERNAME: 'boky'
+          DOCKER_PASSWORD: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
+        run: ./build-tools.sh tools/istio
+  jenkins-jx:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get release version
+        run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: Build tools
+        env:
+          DOCKER_USERNAME: 'boky'
+          DOCKER_PASSWORD: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
+        run: ./build-tools.sh tools/jenkins-jx
+  k3s:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get release version
+        run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: Build tools
+        env:
+          DOCKER_USERNAME: 'boky'
+          DOCKER_PASSWORD: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
+        run: ./build-tools.sh tools/k3s
+  kops:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get release version
+        run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: Build tools
+        env:
+          DOCKER_USERNAME: 'boky'
+          DOCKER_PASSWORD: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
+        run: ./build-tools.sh tools/kops
+  kubebox:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get release version
+        run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: Build tools
+        env:
+          DOCKER_USERNAME: 'boky'
+          DOCKER_PASSWORD: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
+        run: ./build-tools.sh tools/kubebox
+  mutagen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get release version
+        run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: Build tools
+        env:
+          DOCKER_USERNAME: 'boky'
+          DOCKER_PASSWORD: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
+        run: ./build-tools.sh tools/mutagen
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get release version
+        run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: Build tools
+        env:
+          DOCKER_USERNAME: 'boky'
+          DOCKER_PASSWORD: '${{ secrets.DOCKER_ACCESS_TOKEN }}'
+        run: ./build-tools.sh tools/terraform
+
 
